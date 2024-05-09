@@ -2,6 +2,7 @@
 import React from 'react';
 //@ts-ignore
 import { MyARCanvas } from './MyARCanvas';
+import {Button} from '@mui/material'
 
 interface AppProps {
 
@@ -9,7 +10,7 @@ interface AppProps {
 const App: React.FC<AppProps> = (props) => {
   const value = 'World';
   return <>
-    <div>Hello to you my dear{value}</div>
+    <Button>Press</Button>
     <MyARCanvas />
   </>
 }
