@@ -1,30 +1,36 @@
 import { AmbientLight, BoxGeometry, Mesh, MeshStandardMaterial, PointLight } from "three"
 import { ARCanvas, ARMarker } from "@artcom/react-three-arjs"
+import { useState } from "react";
 
 function Box() {
+    const [selected, setSelected] = useState(false);
+
     return (
-        <mesh
-            onClick={e => {
-                window.alert("click")
-                console.log(e)
-            }}>
+        <mesh onClick={() => setSelected(!selected)}>
             <boxGeometry args={[1, 1, 1]} />
-            <meshStandardMaterial color={"hotpink"} />
+            <meshStandardMaterial color={selected ? "yellow" : "hotpink"} />
         </mesh>
-    )
+    );
 }
 
 export const MyARCanvas = (props) => {
     return <ARCanvas
-        camera={{ position: [0, 0, 0] }}
-        onCreated={({gl}) => {
-            gl.setSize(window.innerWidth, window.innerHeight)
-        }}>
+        onCameraStreamReady={() => console.log("Camera stream ready")}
+        onCameraStreamError={() => console.error("Camera stream error")}
+        sourceType={"webcam"}
+    >
         <ambientLight />
-        <pointLight position={[10, 10, 0]} />
+        <pointLight position={[10, 10, 0]} intensity={10.0} />
         <ARMarker
+            debug={true}
+            params={{ smooth: true }}
             type={"pattern"}
-            patternUrl={"data/hiro.patt"}>
+            patternUrl={"data/patt.hiro"}
+            onMarkerFound={() => {
+                console.log("Marker Found");
+            }}
+        >
+            <Box />
         </ARMarker>
     </ARCanvas>
 }
