@@ -4,10 +4,10 @@ import { useRef, useState } from "react";
 import { useFrame, useLoader } from '@react-three/fiber'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
-const Model = () => {
-    const gltf1 = useLoader(GLTFLoader, '/data/7bmg-redo-2.glb');
-    const gltf2 = useLoader(GLTFLoader, '/data/7bmg-redo-1.glb');
-    const gltf3 = useLoader(GLTFLoader, '/data/7bmg-masked.glb');
+const Model = (props) => {
+    const gltf1 = useLoader(GLTFLoader, `/data/${props.root}-redo-2.glb`);
+    const gltf2 = useLoader(GLTFLoader, `/data/${props.root}-redo-1.glb`);
+    const gltf3 = useLoader(GLTFLoader, `/data/${props.root}-masked.glb`);
     const gltfs = [gltf1, gltf2, gltf3]
     const parent = new Object3D()
     const boundingBoxMiddle = [
@@ -24,7 +24,6 @@ const Model = () => {
         parent.add(gltf.scene)
     })
     useFrame((frame) => {
-        console.log(frame.clock.elapsedTime*1000 - frame.clock.oldTime)
         parent.rotateY((frame.clock.elapsedTime*1000 - frame.clock.oldTime)/100000)
     })
 
@@ -45,7 +44,7 @@ const Box = () => {
     </mesh>
 }
 
-export const MyARCanvas = () => {
+export const MyARCanvas = (props) => {
     return <ARCanvas
         gl={{ antialias: true, powerPreference: "default", physicallyCorrectLights: false }}
         onCameraStreamReady={() => console.log("Camera stream ready")}
@@ -58,11 +57,11 @@ export const MyARCanvas = () => {
         <ARMarker
             params={{ smooth: true }}
             type={"pattern"}
-            patternUrl={"data/pattern-6Barcode.patt"}
+            patternUrl={"data/patt.hiro"}
             onMarkerFound={() => {
                 console.log("Marker Found")
             }}>
-            <Model />
+            <Model root={props.root}/>
         </ARMarker>
     </ARCanvas>
 }
