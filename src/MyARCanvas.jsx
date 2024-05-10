@@ -54,11 +54,11 @@ export const MyARCanvas = () => {
             gl.setSize(window.innerWidth, window.innerHeight)
         }}>
         <ambientLight />
-        <pointLight position={[10, 10, 0]} intensity={1.0} />
+        <pointLight position={[10, 10, 0]} intensity={2.0} />
         <ARMarker
             params={{ smooth: true }}
             type={"pattern"}
-            patternUrl={"data/patt.hiro"}
+            patternUrl={"data/pattern-6Barcode.patt"}
             onMarkerFound={() => {
                 console.log("Marker Found")
             }}>
