@@ -4,6 +4,7 @@ import React from 'react';
 import { MyARCanvas } from './MyARCanvas';
 import { Button } from '@mui/material'
 import { createBrowserRouter, RouterProvider, Link, Outlet } from 'react-router-dom'
+import { MyScene } from './MyScene';
 
 interface AppProps {
 
@@ -15,9 +16,9 @@ const App: React.FC<AppProps> = (props) => {
 
 const mainRouter = createBrowserRouter([
   {
-    path: '', element: <MyARCanvas root="7bmg" />, children: [
+    path: '', element: <MyScene root="7bmg" />, children: [
       {
-        path: '7bmg', element: <MyARCanvas root="7bmg" />,
+        path: '7bmg', element: <MyScene root="7bmg" />,
       },
     ]
   }])
