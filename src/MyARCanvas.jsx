@@ -29,7 +29,7 @@ const Model = (props) => {
 
     return (
         <>
-            <primitive object={parent} scale={0.1} />
+            <primitive object={parent} scale={0.03} />
         </>
     );
 };
