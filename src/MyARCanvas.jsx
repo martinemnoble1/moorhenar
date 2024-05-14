@@ -36,8 +36,8 @@ const Model = (props) => {
         parent.rotateY((frame.clock.elapsedTime - lastFrameTime.current) )
         lastFrameTime.current = frame.clock.elapsedTime
     })
-    const scale = 0.03
-    const position = boundingBoxMiddle.multiplyScalar(-3*scale)
+    const scale = 0.3
+    const position = boundingBoxMiddle.multiplyScalar(-scale)
     console.log({position, boundingBoxMiddle})
     return <primitive object={parent} scale={scale} position={position} />
 };
@@ -102,8 +102,9 @@ export const MyARCanvas = (props) => {
             <pointLight position={[10, 10, 0]} intensity={1.0} />
             <ARMarker
                 params={{ smooth: true }}
-                type={"pattern"}
-                patternUrl={"data/patt.hiro"}
+                type={"barcode"}
+                barcodeValue={6}
+                //patternUrl={"data/patt.hiro"}
                 onMarkerFound={() => {
                     console.log("Marker Found")
                 }}>
