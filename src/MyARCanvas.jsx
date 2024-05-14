@@ -1,4 +1,4 @@
-import { AmbientLight, BoxGeometry, Mesh, MeshStandardMaterial, PointLight, Scene, Object3D } from "three"
+import { AmbientLight, BoxGeometry, Mesh, MeshStandardMaterial, PointLight, Scene, Object3D, Vector3 } from "three"
 import { ARCanvas, ARMarker } from "@artcom/react-three-arjs"
 import { createRef, useCallback, useMemo, useRef, useState } from "react";
 import { useFrame, useLoader } from '@react-three/fiber'
@@ -6,10 +6,10 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { InputLabel, Radio, FormGroup, FormControl, FormControlLabel } from "@mui/material";
 
 const Model = (props) => {
-    const targetGLTF = useLoader(GLTFLoader, `/data/${props.root}-redo-2.glb`);
-    const drugGLTF = useLoader(GLTFLoader, `/data/${props.root}-redo-2.glb`);
-    const surfaceGLTF = useLoader(GLTFLoader, `/data/${props.root}-redo-1.glb`);
-    const mapGLTF = useLoader(GLTFLoader, `/data/${props.root}-masked.glb`);
+    const targetGLTF = useLoader(GLTFLoader, `/data/${props.root}-target.glb`);
+    const drugGLTF = useLoader(GLTFLoader, `/data/${props.root}-drug.glb`);
+    const surfaceGLTF = useLoader(GLTFLoader, `/data/${props.root}-surface.glb`);
+    const mapGLTF = useLoader(GLTFLoader, `/data/${props.root}-map.glb`);
     const gltfs = []
     const lastFrameTime = useRef(0)
 
@@ -17,26 +17,29 @@ const Model = (props) => {
     if (props.display.includes("drug")) { gltfs.push(drugGLTF) }
     if (props.display.includes("surface")) { gltfs.push(surfaceGLTF) }
     if (props.display.includes("map")) { gltfs.push(mapGLTF) }
+    console.log(gltfs)
 
     const parent = new Object3D()
-    const boundingBoxMiddle = [
+    const boundingBoxMiddle = new Vector3(
         (drugGLTF.scene.children[0].geometry.boundingBox.min.x + drugGLTF.scene.children[0].geometry.boundingBox.max.x) / 2,
         (drugGLTF.scene.children[0].geometry.boundingBox.min.y + drugGLTF.scene.children[0].geometry.boundingBox.max.y) / 2,
         (drugGLTF.scene.children[0].geometry.boundingBox.min.z + drugGLTF.scene.children[0].geometry.boundingBox.max.z) / 2,
-    ]
-    console.log({ boundingBoxMiddle })
+    )
     gltfs.forEach(gltf => {
-        gltf.scene.children.forEach(sceneChild => {
-            sceneChild.geometry.translate(-boundingBoxMiddle[0], -boundingBoxMiddle[1], -boundingBoxMiddle[2])
-        })
+        //console.log('translating', gltf)
+        //gltf.scene.children[0].geometry.position = new Vector3(-boundingBoxMiddle[0], -boundingBoxMiddle[1], -boundingBoxMiddle[2])
+        //translate(-boundingBoxMiddle[0], -boundingBoxMiddle[1], -boundingBoxMiddle[2])
         parent.add(gltf.scene)
     })
+
     useFrame((frame) => {
         parent.rotateY((frame.clock.elapsedTime - lastFrameTime.current) )
         lastFrameTime.current = frame.clock.elapsedTime
     })
-
-    return <primitive object={parent} scale={0.03} />
+    const scale = 0.03
+    const position = boundingBoxMiddle.multiplyScalar(-3*scale)
+    console.log({position, boundingBoxMiddle})
+    return <primitive object={parent} scale={scale} position={position} />
 };
 
 
