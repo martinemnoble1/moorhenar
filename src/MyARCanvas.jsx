@@ -105,7 +105,7 @@ export const MyARCanvas = (props) => {
         )}
         <ARCanvas
             key={JSON.stringify(display)}
-            arEnabled={false}
+            //arEnabled={false}
             gl={{ antialias: true, powerPreference: "default", physicallyCorrectLights: false }}
             onCameraStreamReady={() => console.log("Camera stream ready")}
             onCameraStreamError={() => console.error("Camera stream error")}
