@@ -43,7 +43,7 @@ const Model = forwardRef((props, ref) => {
         //rotation.w += (frame.clock.elapsedTime - lastFrameTime.current)
         lastFrameTime.current = frame.clock.elapsedTime
     })
-    const scale = 0.3
+    const scale = 0.1
     console.log({ boundingBoxMiddle })
     parent.translateOnAxis(boundingBoxMiddle, -1.0)
 
@@ -111,9 +111,9 @@ export const MyARCanvas = (props) => {
             <pointLight position={[10, 10, 0]} intensity={1.0} />
             <ARMarker
                 params={{ smooth: true }}
-                type={"unknown"} //['pattern', 'barcode', 'unknown' ]
-                barcodeValue={6}
-                //patternUrl={"data/patt.hiro"}
+                type={"pattern"} //['pattern', 'barcode', 'unknown' ]
+                //barcodeValue={6}
+                patternUrl={"data/patt.hiro"}
                 onMarkerFound={() => {
                     console.log("Marker Found")
                 }}>
