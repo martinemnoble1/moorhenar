@@ -44,22 +44,25 @@ const Model = forwardRef((props, ref) => {
         //rotation.w += (frame.clock.elapsedTime - lastFrameTime.current)
         lastFrameTime.current = frame.clock.elapsedTime
     })
-    const scale = 0.1
+    const scale = 0.05
     console.log({ boundingBoxMiddle })
     parent.translateOnAxis(boundingBoxMiddle, -1.0)
-    parent.rotateX(-0.)
     parent.translateOnAxis(new Vector3(0.,1.,0.), 1.0*(boundingBox.max.y-boundingBox.min.y))
+    //parent.translateOnAxis(new Vector3(1.,0.,0.), -1.0/scale)
     return <primitive ref={ref} object={shell} scale={scale} />
 });
 
 
 const Box = () => {
     const [selected, setSelected] = useState(false);
-
-    return <mesh onClick={() => setSelected(!selected)}>
+    const boxGLTF = useLoader(GLTFLoader, `/data/MultiUVTest.glb`);
+    return <primitive object={boxGLTF.scene} scale={0.5} />
+    {/*
+    <mesh onClick={() => setSelected(!selected)}>
         <boxGeometry args={[1, 1, 1]} />
         <meshStandardMaterial color={selected ? "yellow" : "hotpink"} />
     </mesh>
+ */}
 }
 
 export const MyARCanvas = (props) => {
@@ -102,7 +105,7 @@ export const MyARCanvas = (props) => {
         )}
         <ARCanvas
             key={JSON.stringify(display)}
-            //arEnabled={false}
+            arEnabled={false}
             gl={{ antialias: true, powerPreference: "default", physicallyCorrectLights: false }}
             onCameraStreamReady={() => console.log("Camera stream ready")}
             onCameraStreamError={() => console.error("Camera stream error")}
