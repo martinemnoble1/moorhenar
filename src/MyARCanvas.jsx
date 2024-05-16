@@ -26,6 +26,7 @@ const Model = forwardRef((props, ref) => {
     const shell = new Object3D()
     const parent = new Object3D()
     shell.add(parent)
+    const boundingBox = targetGLTF.scene.children[0].geometry.boundingBox
     const boundingBoxMiddle = new Vector3(
         (drugGLTF.scene.children[0].geometry.boundingBox.min.x + drugGLTF.scene.children[0].geometry.boundingBox.max.x) / 2,
         (drugGLTF.scene.children[0].geometry.boundingBox.min.y + drugGLTF.scene.children[0].geometry.boundingBox.max.y) / 2,
@@ -46,7 +47,8 @@ const Model = forwardRef((props, ref) => {
     const scale = 0.1
     console.log({ boundingBoxMiddle })
     parent.translateOnAxis(boundingBoxMiddle, -1.0)
-
+    parent.rotateX(-0.)
+    parent.translateOnAxis(new Vector3(0.,1.,0.), 1.0*(boundingBox.max.y-boundingBox.min.y))
     return <primitive ref={ref} object={shell} scale={scale} />
 });
 
@@ -100,7 +102,7 @@ export const MyARCanvas = (props) => {
         )}
         <ARCanvas
             key={JSON.stringify(display)}
-            //arEnabled={false}
+            arEnabled={false}
             gl={{ antialias: true, powerPreference: "default", physicallyCorrectLights: false }}
             onCameraStreamReady={() => console.log("Camera stream ready")}
             onCameraStreamError={() => console.error("Camera stream error")}
@@ -117,6 +119,7 @@ export const MyARCanvas = (props) => {
                 onMarkerFound={() => {
                     console.log("Marker Found")
                 }}>
+                    <Box/>
                 {theModel}
             </ARMarker>
         </ARCanvas>
