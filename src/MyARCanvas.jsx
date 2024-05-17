@@ -3,7 +3,7 @@ import { ARCanvas, ARMarker } from "@artcom/react-three-arjs"
 import { createRef, forwardRef, useCallback, useMemo, useRef, useState } from "react";
 import { useFrame, useLoader } from '@react-three/fiber'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-import { InputLabel, Radio, FormGroup, FormControl, FormControlLabel } from "@mui/material";
+import { InputLabel, Radio, FormGroup, FormControl, FormControlLabel, Toolbar } from "@mui/material";
 
 const Model = forwardRef((props, ref) => {
     const targetGLTF = useLoader(GLTFLoader, `/data/${props.root}-target.glb`);
@@ -47,7 +47,7 @@ const Model = forwardRef((props, ref) => {
     const scale = 0.05
     console.log({ boundingBoxMiddle })
     parent.translateOnAxis(boundingBoxMiddle, -1.0)
-    parent.translateOnAxis(new Vector3(0.,1.,0.), 1.0*(boundingBox.max.y-boundingBox.min.y))
+    parent.translateOnAxis(new Vector3(0., 1., 0.), 1.0 * (boundingBox.max.y - boundingBox.min.y))
     //parent.translateOnAxis(new Vector3(1.,0.,0.), -1.0/scale)
     return <primitive ref={ref} object={shell} scale={scale} />
 });
@@ -92,17 +92,19 @@ export const MyARCanvas = (props) => {
     }, [theModel])
 
     return <>
-        {['target', 'drug', 'surface', 'map'].map(objectName =>
+        <Toolbar sx={{backgroundColor:'#fff5'}}>
+            {['target', 'map', 'drug', 'surface'].map(objectName =>
 
-            <FormControl key={objectName}>
-                <FormControlLabel control={<Radio
-                    checked={display.includes(objectName)}
-                    onClick={handleToggle} name={objectName}
-                />}
-                    label={objectName}
-                />
-            </FormControl>
-        )}
+                <FormControl key={objectName}>
+                    <FormControlLabel control={<Radio
+                        checked={display.includes(objectName)}
+                        onClick={handleToggle} name={objectName}
+                    />}
+                        label={objectName}
+                    />
+                </FormControl>
+            )}
+        </Toolbar>
         <ARCanvas
             key={JSON.stringify(display)}
             //arEnabled={false}
@@ -115,6 +117,9 @@ export const MyARCanvas = (props) => {
             <ambientLight />
             <pointLight position={[10, 10, 0]} intensity={1.0} />
             <ARMarker
+            smoothCount={3}
+            smoothTolerance={0.005}
+            
                 params={{ smooth: true }}
                 type={"pattern"} //['pattern', 'barcode', 'unknown' ]
                 //barcodeValue={6}
@@ -122,7 +127,7 @@ export const MyARCanvas = (props) => {
                 onMarkerFound={() => {
                     console.log("Marker Found")
                 }}>
-                    <Box/>
+                <Box />
                 {theModel}
             </ARMarker>
         </ARCanvas>
