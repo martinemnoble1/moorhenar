@@ -56,10 +56,21 @@ const Model = forwardRef((props, ref) => {
 const Box = () => {
     const [selected, setSelected] = useState(false);
     const boxGLTF = useLoader(GLTFLoader, `/data/MultiUVTest.glb`);
-    return <primitive object={boxGLTF.scene} scale={0.5} />
+    console.log({ boxGLTF })
+    const boxAndArrows = new Object3D()
+    boxAndArrows.add(boxGLTF.scene)
+    for (let axis of [[3, .1, .1], [0.1, 3, 0.1], [0.1, 0.1, 3]]) {
+        const xArrowsMesh = new Mesh()
+        xArrowsMesh.material = new MeshStandardMaterial({ color: "#FF9999" })
+        xArrowsMesh.geometry = new BoxGeometry(axis[0], axis[1], axis[2])
+        //xArrowsMesh.translateOnAxis(axis, 1.5)
+        console.log(xArrowsMesh)
+        boxAndArrows.add(xArrowsMesh)
+    }
+    return <primitive object={boxAndArrows} scale={0.5} position={[0, 0, 0]} />
     {/*
     <mesh onClick={() => setSelected(!selected)}>
-        <boxGeometry args={[1, 1, 1]} />
+        <boxGeometry args={[0.1, 1, 1]} />
         <meshStandardMaterial color={selected ? "yellow" : "hotpink"} />
     </mesh>
  */}
@@ -92,7 +103,7 @@ export const MyARCanvas = (props) => {
     }, [theModel])
 
     return <>
-        <Toolbar sx={{backgroundColor:'#fff5'}}>
+        <Toolbar sx={{ backgroundColor: '#fff5' }}>
             {['target', 'map', 'drug', 'surface'].map(objectName =>
 
                 <FormControl key={objectName}>
@@ -107,6 +118,8 @@ export const MyARCanvas = (props) => {
         </Toolbar>
         <ARCanvas
             key={JSON.stringify(display)}
+            canvasWidth={window.innerWidth}
+            canvasHeight={window.innerHeight}
             //arEnabled={false}
             gl={{ antialias: true, powerPreference: "default", physicallyCorrectLights: false }}
             onCameraStreamReady={() => console.log("Camera stream ready")}
@@ -117,9 +130,9 @@ export const MyARCanvas = (props) => {
             <ambientLight />
             <pointLight position={[10, 10, 0]} intensity={1.0} />
             <ARMarker
-            smoothCount={3}
-            smoothTolerance={0.005}
-            
+                smoothCount={3}
+                smoothTolerance={0.005}
+
                 params={{ smooth: true }}
                 type={"pattern"} //['pattern', 'barcode', 'unknown' ]
                 //barcodeValue={6}
