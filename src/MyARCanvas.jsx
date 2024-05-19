@@ -1,10 +1,12 @@
-import { AmbientLight, BoxGeometry, Mesh, MeshStandardMaterial, PointLight, Scene, Object3D, Vector3, Quaternion } from "three"
+import { AmbientLight, BoxGeometry, Mesh, MeshStandardMaterial, PointLight, Scene, Object3D, Vector3, Matrix4, Quaternion } from "three"
 import { ARCanvas, ARMarker } from "@artcom/react-three-arjs"
 import { createRef, forwardRef, useCallback, useMemo, useRef, useState } from "react";
 import { useFrame, useLoader } from '@react-three/fiber'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-import { InputLabel, Radio, FormGroup, FormControl, FormControlLabel, Toolbar } from "@mui/material";
-
+import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
+import { InputLabel, Radio, FormGroup, FormControl, FormControlLabel, Toolbar, Button } from "@mui/material";
+import { Download } from "@mui/icons-material";
+import { doDownload } from "./utils";
 const Model = forwardRef((props, ref) => {
     const targetGLTF = useLoader(GLTFLoader, `/data/${props.root}-target.glb`);
     targetGLTF.scene.name = 'target'
@@ -48,8 +50,12 @@ const Model = forwardRef((props, ref) => {
     console.log({ boundingBoxMiddle })
     parent.translateOnAxis(boundingBoxMiddle, -1.0)
     parent.translateOnAxis(new Vector3(0., 1., 0.), 1.0 * (boundingBox.max.y - boundingBox.min.y))
+    const m = new Matrix4();
+    m.makeScale(scale, scale, scale)
+    parent.applyMatrix4(m)
+    parent.castShadow = true
     //parent.translateOnAxis(new Vector3(1.,0.,0.), -1.0/scale)
-    return <primitive ref={ref} object={shell} scale={scale} />
+    return <primitive ref={ref} object={shell} scale={1.0} />
 });
 
 
@@ -102,6 +108,32 @@ export const MyARCanvas = (props) => {
 
     }, [theModel])
 
+    const handleDownload = useCallback(() => {
+        // Instantiate a exporter
+        const exporter = new GLTFExporter();
+
+        // Parse the input and generate the glTF output
+        exporter.parse(
+            modelRef.current,
+            // called when the gltf has been generated
+            function (gltf) {
+
+                console.log(gltf);
+                doDownload(gltf)
+                //downloadJSON(gltf);
+
+            },
+            // called when there is an error in the generation
+            function (error) {
+
+                console.log('An error happened');
+
+            },
+            //options
+        )
+
+    }, [theModel])
+
     return <>
         <Toolbar sx={{ backgroundColor: '#fff5' }}>
             {['target', 'map', 'drug', 'surface'].map(objectName =>
@@ -115,6 +147,7 @@ export const MyARCanvas = (props) => {
                     />
                 </FormControl>
             )}
+            <Button onClick={handleDownload}><Download /></Button>
         </Toolbar>
         <ARCanvas
             key={JSON.stringify(display)}
