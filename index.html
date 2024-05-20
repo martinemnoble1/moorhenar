@@ -4,20 +4,57 @@
 <head>
   <script src="./aframe-master.min.js"></script>
   <script src="./aframe-ar.js"></script>
+  <script>
+
+    AFRAME.registerComponent('fade-in', {
+
+      init: function () {
+        this.el.scene.children.traverse((child) => {
+          if (child.type === 'Mesh') {
+            const material = child.material;
+            // Do stuff with the material
+            material.transparent = true; // enable to modify opacity correctly
+            material.opacity = 0.1;
+          }
+        })
+      }
+    });
+
+  </script>
+
 </head>
 
 <body style='margin: px; overflow: hidden; '>
-
   <a-scene embedded arjs="trackingMethod: best; sourceType: webcam;debugUIEnabled: false;"
     renderer="antialias: true; logarithmicDepthBuffer: true;">
     <a-assets>
-      <a-asset-item id="myModel" src="./data/downloadGLTF.gltf"></a-asset-item>
+      <a-asset-item id="myTarget" src="./data/7bmg-target.glb"></a-asset-item>
+      <a-asset-item id="myMap" src="./data/7bmg-map.glb"></a-asset-item>
+      <a-asset-item id="myDrug" src="./data/7bmg-drug.glb"></a-asset-item>
+      <a-asset-item id="mySurface" src="./data/7bmg-surface.glb"></a-asset-item>
+      <a-mixin id="fade"
+        animation="property: material.opacity; from: 0; to: 1; dur: 5000; startEvents: start;"></a-mixin>
+
     </a-assets>
     <a-box position='0 0.5 0' material=' opacity: 0.5; '></a-box>
-    <a-entity position='0 0.5 0' gltf-model="#myModel"></a-entity>
+    <a-entity rotation="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 10000">
+      <a-entity position="0 2.0 0">
+        <a-entity scale="0.05 0.05 0.05">
+          <a-entity position='22 10 -14' gltf-model="#myTarget"></a-entity>
+          <a-entity position='22 10 -14' gltf-model="#mySurface"></a-entity>
+          <a-entity position='22 10 -14' gltf-model="#myMap" mixin="fade"></a-entity>
+          <a-entity position='22 10 -14' gltf-model="#myDrug"></a-entity>
+        </a-entity>
+      </a-entity>
+    </a-entity>
     <a-marker-camera smooth="true" smoothCount="10" smoothTolerance=".01" smoothThreshold="5"
       preset='hiro'></a-marker-camera>
   </a-scene>
+  <!--
+  <noscript>You need to enable JavaScript to run this app.</noscript>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+  -->
 </body>
 
 </html>

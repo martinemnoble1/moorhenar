@@ -12,6 +12,7 @@ interface AppProps {
 }
 const App: React.FC<AppProps> = (props) => {
   const value = 'World';
+  //return <MyScene />
   return <RouterProvider router={mainRouter}></RouterProvider>
 }
 
