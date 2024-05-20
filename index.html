@@ -9,7 +9,7 @@
     AFRAME.registerComponent('surface-visibility', {
       tick: function (time, timeDelta) {
         const interval = Math.floor(time / 1000) % 20
-        if (interval < 4) {
+        if (interval < 5) {
           this.el.setAttribute('visible', true);
         }
         else {
@@ -20,7 +20,7 @@
     AFRAME.registerComponent('electron-density-visibility', {
       tick: function (time, timeDelta) {
         const interval = Math.floor(time / 1000) % 20
-        if (interval >4 && interval <8) {
+        if (interval > 5 && interval < 10) {
           this.el.setAttribute('visible', true);
         }
         else {
@@ -31,7 +31,7 @@
     AFRAME.registerComponent('drug-visibility', {
       tick: function (time, timeDelta) {
         const interval = Math.floor(time / 1000) % 20
-        if (interval > 8 && interval<20) {
+        if (interval > 8 && interval < 20) {
           this.el.setAttribute('visible', true);
         }
         else {
