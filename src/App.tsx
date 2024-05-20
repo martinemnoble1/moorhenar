@@ -4,6 +4,7 @@ import React from 'react';
 import { MyARCanvas } from './MyARCanvas';
 import { Button } from '@mui/material'
 import { createBrowserRouter, RouterProvider, Link, Outlet } from 'react-router-dom'
+//@ts-ignore
 import { MyScene } from './MyScene';
 
 interface AppProps {
