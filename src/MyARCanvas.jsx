@@ -76,7 +76,7 @@ const Box = () => {
         console.log(xArrowsMesh)
         boxAndArrows.add(xArrowsMesh)
     }
-    return <primitive object={boxAndArrows} scale={1.0} position={[0, 0, 0]} />
+    return <primitive object={boxAndArrows} scale={0.5} position={[0, 0, 0]} />
     {/*
     <mesh onClick={() => setSelected(!selected)}>
         <boxGeometry args={[0.1, 1, 1]} />
@@ -161,9 +161,9 @@ export const MyARCanvas = (props) => {
                     />
                 </FormControl>
             )}
-            <Button onClick={handleDownload}><Download /></Button>
+            {false && <Button onClick={handleDownload}><Download /></Button>}
         </Toolbar>
-
+        <div style={{width:"100vw", height:"100vh"}}>
         <ARCanvas
             key={JSON.stringify(display)}
             //canvasWidth={window.innerWidth}
@@ -173,7 +173,7 @@ export const MyARCanvas = (props) => {
             onCameraStreamReady={(a) => console.log("Camera stream ready", a)}
             onCameraStreamError={() => console.error("Camera stream error")}
             onCreated={({ gl }) => {
-                //gl.setSize(window.innerWidth * window.devicePixelRatio , window.innerHeight * window.devicePixelRatio)
+                gl.setSize(window.innerWidth *window.devicePixelRatio, window.innerHeight*window.devicePixelRatio )
             }}
         //onCameraStreamReady={() => console.log("Camera stream ready")}
         //onCameraStreamError={() => console.error("Camera stream error")}
@@ -198,7 +198,7 @@ export const MyARCanvas = (props) => {
                 {theModel}
             </ARMarker>
         </ARCanvas>
-
+        </div>
         {/*<ARCanvas
     onCameraStreamReady={() => console.log("Camera stream ready")}
     onCameraStreamError={() => console.error("Camera stream error")}
