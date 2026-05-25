@@ -1,5 +1,22 @@
 {
-    "navigationFallback": {
-        "rewrite": "/index.html"
+  "mimeTypes": {
+    ".usdz": "model/vnd.usdz+zip",
+    ".glb": "model/gltf-binary",
+    ".gltf": "model/gltf+json",
+    ".patt": "text/plain",
+    ".dat": "application/octet-stream"
+  },
+  "globalHeaders": {
+    "Access-Control-Allow-Origin": "*"
+  },
+  "routes": [
+    {
+      "route": "/legacy",
+      "rewrite": "/legacy.html"
     }
+  ],
+  "navigationFallback": {
+    "rewrite": "/index.html",
+    "exclude": ["/data/*", "/*.{glb,usdz,gltf,js,png,ico,svg,json,patt,dat,pdf,docx}"]
+  }
 }

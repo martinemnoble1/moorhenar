@@ -2,96 +2,287 @@
 <html lang="en">
 
 <head>
-  <script src="./aframe-master.min.js"></script>
-  <script src="./aframe-ar.js"></script>
-  <script>
-    // Registering component in foo-component.js
-    AFRAME.registerComponent('surface-visibility', {
-      tick: function (time, timeDelta) {
-        const interval = Math.floor(time / 1000) % 20
-        if (interval < 5) {
-          if (!this.el.getAttribute('visible')) {
-            this.el.setAttribute('visible', true);
-          }
-        }
-        else {
-          if (this.el.getAttribute('visible')) {
-            this.el.setAttribute('visible', false);
-          }
-        }
-      },
-    });
-    AFRAME.registerComponent('electron-density-visibility', {
-      tick: function (time, timeDelta) {
-        const interval = Math.floor(time / 1000) % 20
-        if (interval > 5 && interval < 10) {
-          if (!this.el.getAttribute('visible')) {
-            this.el.setAttribute('visible', true);
-          }
-        }
-        else {
-          if (this.el.getAttribute('visible')) {
-            this.el.setAttribute('visible', false);
-          }
-        }
-      },
-    });
-    AFRAME.registerComponent('drug-visibility', {
-      tick: function (time, timeDelta) {
-        const interval = Math.floor(time / 1000) % 20
-        if (interval > 8 && interval < 20) {
-          if (!this.el.getAttribute('visible')) {
-            this.el.setAttribute('visible', true);
-          }
-        }
-        else {
-          if (this.el.getAttribute('visible')) {
-            this.el.setAttribute('visible', false);
-          }
-        }
-      },
-    });
-    AFRAME.registerComponent('spinning', {
-      tick: function (time, timeDelta) {
-        const angle = (40.*time / 1000) % 360
-        this.el.object3D.rotation.set(
-          THREE.MathUtils.degToRad(0),
-          THREE.MathUtils.degToRad(angle),
-          THREE.MathUtils.degToRad(0)
-        );
-      },
-    });
-  </script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>7BMG — AR structure viewer</title>
+  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
+  <style>
+    :root {
+      --bg: #0e1116;
+      --fg: #e6e9ef;
+      --muted: #9aa3b2;
+      --accent: #5aa9ff;
+      --panel: rgba(20, 24, 32, 0.85);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    header {
+      position: fixed;
+      top: 0; left: 0;
+      /* leave space on the right for the AR button so taps in that
+         corner reach the button, not the header gradient */
+      right: 140px;
+      padding: 12px 16px;
+      background: linear-gradient(to bottom, rgba(14,17,22,0.9), rgba(14,17,22,0));
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    header h1 { margin: 0; font-size: 16px; font-weight: 600; }
+    header p { margin: 2px 0 0; font-size: 12px; color: var(--muted); }
+
+    model-viewer {
+      width: 100vw;
+      height: 100vh;
+      background: var(--bg);
+      --poster-color: transparent;
+    }
+
+    .controls {
+      position: fixed;
+      bottom: max(16px, env(safe-area-inset-bottom));
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 10px;
+      background: var(--panel);
+      backdrop-filter: blur(10px);
+      border-radius: 14px;
+      z-index: 10;
+      max-width: calc(100vw - 24px);
+      justify-content: center;
+    }
+
+    .controls button {
+      appearance: none;
+      border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.05);
+      color: var(--fg);
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .controls button[aria-pressed="true"] {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #0b1220;
+      font-weight: 600;
+    }
+
+    .ar-button {
+      position: fixed;
+      top: max(12px, env(safe-area-inset-top));
+      right: 12px;
+      background: var(--accent);
+      color: #0b1220;
+      border: none;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      z-index: 15;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+    }
+
+    .ios-note {
+      position: fixed;
+      top: 56px;
+      left: 16px;
+      right: 16px;
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.4;
+      pointer-events: none;
+      display: none;
+    }
+
+    .ios-note.show { display: block; }
+
+    .legend {
+      position: fixed;
+      top: 56px;
+      right: 16px;
+      max-width: 220px;
+      font-size: 11px;
+      color: var(--muted);
+      text-align: right;
+      line-height: 1.5;
+      pointer-events: none;
+    }
+    .legend.hide { display: none; }
+    .legend .swatch {
+      display: inline-block;
+      width: 10px; height: 10px;
+      border-radius: 2px;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+  </style>
 </head>
 
-<body style='margin: px; overflow: hidden; '>
-  <a-scene embedded arjs="trackingMethod: best; sourceType: webcam;debugUIEnabled: false;"
-    renderer="antialias: true; logarithmicDepthBuffer: true;">
-    <a-assets>
-      <a-asset-item id="myTarget" src="./data/7bmg-target.glb"></a-asset-item>
-      <a-asset-item id="myMap" src="./data/7bmg-map.glb"></a-asset-item>
-      <a-asset-item id="myDrug" src="./data/7bmg-drug.glb"></a-asset-item>
-      <a-asset-item id="mySurface" src="./data/7bmg-surface.glb"></a-asset-item>
-    </a-assets>
-    <a-box position='0 0.5 0' material=' opacity: 0.5; '></a-box>
-    <!--<a-entity easing="linear" animation="property: rotation; to: 0 360 0; loop: true; dur: 10000">-->
-      <a-entity spinning position="0 2.0 0">
-        <a-entity scale="0.05 0.05 0.05">
-          <a-entity position='22 10 -14' gltf-model="#myTarget" material="opacity: 0.5; transparent: true"></a-entity>
-          <a-entity position='22 10 -14' surface-visibility gltf-model="#mySurface"></a-entity>
-          <a-entity position='22 10 -14' electron-density-visibility gltf-model="#myMap"></a-entity>
-          <a-entity position='22 10 -14' drug-visibility gltf-model="#myDrug"></a-entity>
-        </a-entity>
-      </a-entity>
-    <!--</a-entity>-->
-    <a-marker-camera preset='hiro'></a-marker-camera>
-    <!--smooth="true" smoothCount="5" smoothTolerance=".005" smoothThreshold="3"-->
-  </a-scene>
-  <!--
-  <noscript>You need to enable JavaScript to run this app.</noscript>
-  <div id="root"></div>
-  <script type="module" src="/src/main.tsx"></script>
-  -->
+<body>
+  <header>
+    <h1>PDB 7BMG</h1>
+    <p>SARS-CoV-2 main protease with bound inhibitor. Toggle layers, then tap <strong>View in AR</strong>.</p>
+  </header>
+
+  <p class="ios-note" id="ios-note"></p>
+
+  <div class="legend" id="legend">
+    Target<span class="swatch" style="background:#4a90e2"></span><br>
+    Surface<span class="swatch" style="background:#8ed1a5"></span><br>
+    Electron density<span class="swatch" style="background:#f5a623"></span><br>
+    Drug<span class="swatch" style="background:#f8e71c"></span>
+  </div>
+
+  <model-viewer
+    id="viewer"
+    src="./data/7bmg-combined.glb"
+    ios-src="./data/7bmg-combined.usdz"
+    alt="7BMG protein with surface, electron density, and bound drug"
+    camera-controls
+    touch-action="pan-y"
+    shadow-intensity="0.6"
+    exposure="1.0"
+    ar
+    ar-modes="webxr scene-viewer quick-look"
+    ar-scale="auto">
+    <button slot="ar-button" class="ar-button">View in AR</button>
+  </model-viewer>
+
+  <div class="controls" role="group" aria-label="Layer toggles">
+    <button data-node="target"  aria-pressed="true">Target</button>
+    <button data-node="surface" aria-pressed="true">Surface</button>
+    <button data-node="map"     aria-pressed="false">Electron density</button>
+    <button data-node="drug"    aria-pressed="true">Drug</button>
+  </div>
+
+  <script>
+    const viewer = document.getElementById('viewer');
+    const iosNote = document.getElementById('ios-note');
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    if (isIOS) {
+      iosNote.textContent = 'iOS note: toggle layers here first — AR Quick Look will show whatever is visible when you tap "View in AR". Layers cannot be changed once in AR.';
+      iosNote.classList.add('show');
+    }
+
+    // Match the per-layer colours baked into the USDZ so browser preview and
+    // AR look the same. Hex values mirror scripts/glb-to-usdz.mjs.
+    const LAYER_STYLE = {
+      target:  { color: 0x4a90e2, opacity: 1.0,  roughness: 0.55 },
+      surface: { color: 0x8ed1a5, opacity: 0.45, roughness: 0.8  },
+      map:     { color: 0xf5a623, opacity: 0.35, roughness: 0.9  },
+      drug:    { color: 0xf8e71c, opacity: 1.0,  roughness: 0.4  },
+    };
+
+    // model-viewer 3.5 does not expose a public node-lookup API, so reach into
+    // its internal three.js scene. The `model` property's underlying scene
+    // graph lives behind a private symbol; the most reliable way to find named
+    // nodes is to traverse the three.js scene rooted at the symbol-keyed
+    // property.
+    const nodeMap = new Map();
+
+    function findThreeRoot() {
+      // model-viewer stores its three.js Scene on a Symbol-keyed property.
+      // Walk the symbol properties to find one whose value has `.traverse`.
+      const symbols = Object.getOwnPropertySymbols(viewer);
+      for (const sym of symbols) {
+        const v = viewer[sym];
+        if (v && typeof v.traverse === 'function') return v;
+      }
+      // Fallback: model-viewer exposes `model` whose internal `[symbol].scene`
+      // is the three.js scene; try common shapes.
+      if (viewer.model) {
+        for (const key of Object.getOwnPropertyNames(viewer.model)) {
+          const v = viewer.model[key];
+          if (v && typeof v.traverse === 'function') return v;
+        }
+        const modelSymbols = Object.getOwnPropertySymbols(viewer.model);
+        for (const sym of modelSymbols) {
+          const v = viewer.model[sym];
+          if (v && typeof v.traverse === 'function') return v;
+        }
+      }
+      return null;
+    }
+
+    function indexNodes() {
+      nodeMap.clear();
+      const root = findThreeRoot();
+      if (!root) {
+        console.warn('[modern] could not find three.js root on model-viewer');
+        return;
+      }
+      const wanted = new Set(['target', 'surface', 'map', 'drug']);
+      root.traverse(obj => {
+        if (obj.name && wanted.has(obj.name)) nodeMap.set(obj.name, obj);
+      });
+      // Recolour each layer's meshes to match the USDZ.
+      for (const [layerName, layerRoot] of nodeMap) {
+        const style = LAYER_STYLE[layerName];
+        layerRoot.traverse(child => {
+          if (!child.isMesh || !child.material) return;
+          const mat = child.material;
+          if (mat.color && typeof mat.color.setHex === 'function') {
+            mat.color.setHex(style.color);
+          }
+          mat.vertexColors = false;
+          if (style.opacity < 1) {
+            mat.transparent = true;
+            mat.opacity = style.opacity;
+            mat.depthWrite = false;
+          }
+          if ('roughness' in mat) mat.roughness = style.roughness;
+          mat.needsUpdate = true;
+        });
+      }
+    }
+
+    function setNodeVisible(name, visible) {
+      const node = nodeMap.get(name);
+      if (!node) {
+        console.warn('[modern] no node named', name);
+        return;
+      }
+      node.visible = visible;
+      // model-viewer renders on demand; nothing redraws just because we
+      // toggled .visible on a three.js node. Nudge the field of view by a
+      // sub-degree amount to force a single redraw with the new state.
+      const fov = viewer.getFieldOfView();
+      viewer.fieldOfView = `${fov + 0.0001}deg`;
+      requestAnimationFrame(() => { viewer.fieldOfView = 'auto'; });
+    }
+
+    viewer.addEventListener('load', () => {
+      indexNodes();
+      for (const btn of document.querySelectorAll('.controls button')) {
+        setNodeVisible(btn.dataset.node, btn.getAttribute('aria-pressed') === 'true');
+      }
+    });
+
+    document.querySelectorAll('.controls button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const pressed = btn.getAttribute('aria-pressed') === 'true';
+        const next = !pressed;
+        btn.setAttribute('aria-pressed', String(next));
+        setNodeVisible(btn.dataset.node, next);
+      });
+    });
+  </script>
 </body>
 
 </html>

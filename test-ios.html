@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>iOS AR smoke test</title>
+  <style>
+    body {
+      margin: 0; padding: 40px 24px;
+      background: #111; color: #eee;
+      font-family: -apple-system, sans-serif;
+      line-height: 1.5;
+    }
+    a.ar {
+      display: inline-block;
+      margin-top: 16px;
+      background: #5aa9ff;
+      color: #0b1220;
+      padding: 14px 22px;
+      border-radius: 12px;
+      font-weight: 600;
+      text-decoration: none;
+      font-size: 16px;
+    }
+    img { width: 100%; max-width: 300px; display: block; margin-top: 12px; }
+    h2 { margin-top: 32px; }
+  </style>
+</head>
+
+<body>
+  <h1>iOS AR smoke test</h1>
+  <p>Tap each link on an iPhone. Native AR Quick Look should open. No camera permission for the page itself — iOS opens its system AR viewer in a sheet.</p>
+
+  <h2>1. Apple's teapot (known good)</h2>
+  <p>If this works, iOS plumbing is fine.</p>
+  <a class="ar" rel="ar" href="./data/test-apple.usdz">
+    <img src="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg'/&gt;" alt="teapot">
+    View teapot in AR
+  </a>
+
+  <h2>2. Your 7BMG combined USDZ</h2>
+  <p>If teapot works but this doesn't, the converter produced bad USDZ.</p>
+  <a class="ar" rel="ar" href="./data/7bmg-combined.usdz">
+    <img src="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg'/&gt;" alt="7bmg">
+    View 7BMG in AR
+  </a>
+</body>
+
+</html>

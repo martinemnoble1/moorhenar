@@ -5,9 +5,42 @@ import wasm from "vite-plugin-wasm";
 import topLevelAwait from "vite-plugin-top-level-await";
 import checker from 'vite-plugin-checker';
 import pluginRewriteAll from 'vite-plugin-rewrite-all'; // <= import the plugin
+import { readFileSync, existsSync } from 'node:fs';
+import { resolve } from 'node:path';
 
 export default defineConfig({
     plugins: [
+        {
+            name: "usdz-content-type",
+            configureServer(server) {
+                server.middlewares.use((req, res, next) => {
+                    if (req.url && req.url.split('?')[0].endsWith('.usdz')) {
+                        res.setHeader('Content-Type', 'model/vnd.usdz+zip');
+                    }
+                    next();
+                });
+            },
+        },
+        {
+            name: "serve-root-html",
+            configureServer(server) {
+                server.middlewares.use((req, _res, next) => {
+                    if (!req.url) return next();
+                    const path = req.url.split('?')[0];
+                    if (path === '/' || path === '/index.html') return next();
+                    if (!path.endsWith('.html')) return next();
+                    const file = resolve(__dirname, '.' + path);
+                    if (!existsSync(file)) return next();
+                    req.url = path;
+                    server.transformIndexHtml(path, readFileSync(file, 'utf-8'))
+                        .then(html => {
+                            _res.setHeader('Content-Type', 'text/html');
+                            _res.end(html);
+                        })
+                        .catch(next);
+                });
+            },
+        },
         react(),
         wasm(),
         topLevelAwait(),
